@@ -1,0 +1,105 @@
+html,
+body {
+  max-width: 100vw;
+  background-color: #5771e8;
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+
+::-webkit-scrollbar {
+  width: 0px;
+  height: 6px;
+}
+
+
+/* Track */
+::-webkit-scrollbar-track {
+  border-radius: var(--mantine-radius-md);
+  background: 'rgba(0,0,0,0.2)';
+  margin-left:40px;
+  margin-right:40px;
+  margin-top:40px;
+  margin-bottom:40px;
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-primary-color-9); 
+  cursor:pointer;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--mantine-primary-color-7); 
+}
+
+
+@font-face {
+  font-family: 'Akrobat Regular';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Akrobat Regular'), url('../fonts/Akrobat-Regular.woff') format('woff');
+}
+
+
+@font-face {
+  font-family: 'Akrobat Light';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Akrobat Light'), url('../fonts/Akrobat-Light.woff') format('woff');
+}
+
+
+@font-face {
+  font-family: 'Akrobat ExtraLight';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Akrobat ExtraLight'), url('../fonts/Akrobat-ExtraLight.woff') format('woff');
+}
+
+
+@font-face {
+  font-family: 'Akrobat SemiBold';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Akrobat SemiBold'), url('../fonts/Akrobat-SemiBold.woff') format('woff');
+}
+
+
+@font-face {
+  font-family: 'Akrobat Bold';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Akrobat Bold'), url('../fonts/Akrobat-Bold.woff') format('woff');
+}
+
+
+@font-face {
+  font-family: 'Akrobat ExtraBold Regular';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Akrobat ExtraBold Regular'), url('../fonts/akrobat-extrabold-webfont.woff') format('woff');
+}
+
+
+@font-face {
+  font-family: 'Akrobat Black';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Akrobat Black'), url('../fonts/Akrobat-Black.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'CreditCard';
+  font-style: normal;
+  font-weight: normal;
+  src: local('Credit Card'), url('../fonts/CREDC___.otf') format('otf');
+}
+
