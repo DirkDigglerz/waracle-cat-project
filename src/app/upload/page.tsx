@@ -8,7 +8,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-export async function uploadImage(file: File, subId: string) {
+async function uploadImage(file: File, subId: string) {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('sub_id', subId);
