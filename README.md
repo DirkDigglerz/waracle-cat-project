@@ -1,66 +1,71 @@
 # 🐱 Waracle Cat Project
 
-**Preview live demo:** [https://waracle-cat-project.vercel.app](https://waracle-cat-project.vercel.app)
+**Live Demo:** [https://waracle-cat-project.vercel.app](https://waracle-cat-project.vercel.app)
 
 ---
 
 ## 📘 Intro
 
-A modern single-page cat image manager built with **Next.js** and **TypeScript**, using **TheCatAPI** to upload, view, vote, and favourite cats.
+A modern single-page cat manager built with **Next.js App Router** and **tRPC**, powered by **TheCatAPI**. Users can upload, vote, and favourite cat images — with fully responsive UI, smooth animations, and optimistic updates.
 
 ---
 
-## 🎯 My Goals
+## 🎯 Features
 
-* Let users **upload** cat images via a form on `/upload` ✅
-* **Redirect back to home** on success, or show validation/API errors ✅
-* **Display uploaded cat images** in a responsive grid ✅
-* Ensure images **scale correctly down to 340px** and do not stretch ✅
-* Allow users to **favourite/unfavourite** a cat with toggle UI and API calls ✅
-* Let users **vote up or down** each cat ✅
-* **Display a score** for each cat based on vote difference ✅
-* Maintain a **clean, modern design** that works across screen sizes ✅
-* Show understanding of **UX expectations** like error handling and validation ✅
-
----
-
-## ✨ Extras I Included
-
-* ✅ File type and size validation during upload
-* ✅ Toast notifications for feedback
-* ✅ Zustand for managing vote/favourite state
-* ✅ Responsive layout that adjusts seamlessly
-* ✅ Hosted live on Vercel
+✅ Upload cat images with validation  
+✅ Toggle favourite/unfavourite with optimistic UI  
+✅ Vote up/down with live score tracking  
+✅ Fully responsive cat grid layout  
+✅ Debounced mutation calls to prevent spam  
+✅ Animated floating cloud background  
+✅ Toast notifications for feedback  
+✅ Zustand store for persisted user ID  
+✅ tRPC mutations for API interaction  
+✅ TanStack Query for caching & optimistic updates  
+✅ Clean, modular component and hook structure  
 
 ---
 
-## 🧰 Tech Stack & Implementation
+## ✨ Stack & Tools
 
-| Tool/Lib       | Purpose                                  |
-| -------------- | ---------------------------------------- |
-| **Next.js**    | Routing, SSR/CSR hybrid, fast setup      |
-| **TypeScript** | Type safety and development confidence   |
-| **Zustand**    | Global state for votes/favourites        |
-| **TheCatAPI**  | API for all image/favourite/vote actions |
-| **Vercel**     | Hosting and deployment                   |
+| Tool/Lib                  | Purpose                                                                 |
+|---------------------------|-------------------------------------------------------------------------|
+| **Next.js (App Router)**  | Routing, SSR/CSR hybrid, fast setup                                     |
+| **TypeScript**            | Type safety and dev confidence                                          |
+| **tRPC + React Query**    | Fully typed API with client-server linking & caching                    |
+| **TanStack Query**        | Cache, deduplication, and optimistic updates                            |
+| **Zod**                   | Schema validation for procedures                                        |
+| **Zustand**               | Global state (user UUID persistence)                                    |
+| **Mantine**               | UI components and responsive layout                                     |
+| **Lucide React**          | Icons                                                                   |
+| **Framer Motion**         | Background cloud animations                                             |
+| **Vercel**                | Hosting and CI/CD                                                       |
+| **TheCatAPI**             | Cat image, favourite, and vote endpoints                                |
 
-* All image data, votes, and favourites are handled **client-side**
-* Votes and favourites update **optimistically** with UI feedback
-* Layout is **mobile-first** and scales up to 4 columns using CSS grid/flex
 ---
 
-## 🕒 Things I’d Have Liked to Do
+## 🖼 UI Overview
 
-* Replace loading spinner with **skeleton loaders** for smoother image loading
-* **Refactor state management** into clearer, more modular stores
-* Add **sorting/filtering** by score or favourite status
-* Add **pagination or lazy loading** for performance
-* Improve **upload page styling** to better match the rest of the UI
-* Implement **accessibility improvements** (ARIA, keyboard nav)
-* Improve **optimisim** with my buttons, some of them don't feel great.
-* Add **tests** with Jest, MSW, and Playwright/Cypress for confidence
-* Integrate **user authentication** to support private uploads
-* Use appropraite **api** system implement into next.js to handle server side fetching.
+- Mobile-first layout with grid scaling up to 4 columns
+- Clean, modern design using Mantine components
+- Dynamic cloud background using Framer Motion
+- Optimistic feedback for votes and favourites
+- Toasts for success/error messages
+
+---
+
+## 💡 Potential Improvements
+
+- Skeleton loaders while fetching cats
+- More modular Zustand slices
+- Filter/sort cats by score or favourite status
+- Pagination or infinite scroll
+- Better loading/disabled states for some buttons
+- Accessibility polish (keyboard nav, ARIA)
+- Upload form restyle to match main app theme
+- Add tests with Playwright, Jest or MSW
+- Move some logic to `app/api/` routes for server-side control
+- Auth system for persistent user accounts
 
 ---
 
