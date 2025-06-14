@@ -7,6 +7,7 @@ import { ChevronLeft, ImageIcon, Sparkles, Upload, UploadCloudIcon } from "lucid
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { trpc } from "../client/trpc";
 
 async function uploadImage(file: File, subId: string) {
   const formData = new FormData();
@@ -21,6 +22,7 @@ async function uploadImage(file: File, subId: string) {
   if (!res.ok) throw new Error('Upload failed');
 
   const data = await res.json();
+
   return data;
 }
 
@@ -120,6 +122,8 @@ export default function UploadPage() {
     
     return () => window.removeEventListener('resize', checkIfMobile);
   }, []);
+   const utils = trpc.useUtils(); // or trpc.useContext() in older versions
+
 
   return (
     <Flex
@@ -264,7 +268,9 @@ export default function UploadPage() {
                     });
                     return;
                   }
-
+                 // Invalidate the specific tRPC query
+                  await utils.cats.get.invalidate({ userId: uuid || "" });
+                  
                   notifications.show({
                     title: "Upload Successful",
                     message: "Your image has been uploaded successfully.",

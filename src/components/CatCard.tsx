@@ -288,10 +288,14 @@ export default function CatCard(props: CatCardProps) {
 
         <Flex
           pos="absolute"
+          // bg='red'
+          h='fit-content'
           bottom={0}
           left={0}
           right={0}
-          p="lg"
+          p="sm"
+          pr="md"
+          pl="md"
           align="center"
           justify="space-between"
           gap="md"
@@ -308,7 +312,9 @@ export default function CatCard(props: CatCardProps) {
             onClick={toggleFavourite}
             disabled={favouritePending}
           />
-          <Text fw="bold" c="rgba(255, 255, 255, 0.9)" size="xl">
+          <Text  fw={600} c={
+            currentVote === "up" ? "#4caf50" : currentVote === "down" ? "#f44336" : "rgba(255, 255, 255, 0.9)"
+          } size="md">
             {score > 0 ? `+${score}` : `${score}`}
           </Text>
           <Flex gap="md">

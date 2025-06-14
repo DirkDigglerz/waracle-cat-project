@@ -6,6 +6,7 @@ const API_BASE_URL = 'https://api.thecatapi.com/v1';
 const API_KEY = process.env.NEXT_PUBLIC_CAT_API_KEY || '';
 
 export async function POST(req: NextRequest) {
+
   try {
     const formData = await req.formData();
     const file = formData.get('file');
@@ -49,7 +50,6 @@ export async function POST(req: NextRequest) {
       } catch {
         errorMessage = `Upload failed`;
       }
-
       return new Response(
         JSON.stringify({ error: errorMessage }),
         { status: 500 }
@@ -62,10 +62,9 @@ export async function POST(req: NextRequest) {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch (err) {
-    console.error('Upload error:', err);
+  } catch (error) {
     return new Response(
-      JSON.stringify({ error: 'Internal Server Error' }),
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500 }
     );
   }

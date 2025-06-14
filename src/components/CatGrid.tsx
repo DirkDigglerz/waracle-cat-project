@@ -241,7 +241,7 @@ export default function CatGrid() {
                   }}
                 >
                   <SimpleGrid
-                    cols={{ base: 1, sm: 2, md: 3, lg: 4, xl: 4 }}
+                    cols={{ base: 1, sm: 2, md: 4}}
                     spacing="lg"
                     style={{ width: "100%" }}
                   >
