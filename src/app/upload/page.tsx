@@ -128,7 +128,7 @@ export default function UploadPage() {
 
   return (
     <Flex
-      h="100dvh"
+      h="100vh"
       w="100vw"
       justify="center"
       align="center"
@@ -139,7 +139,7 @@ export default function UploadPage() {
       <Flex
         p="xl"
         h={{
-          base: "85vh",
+          base: "95vh",
           sm: "80vh",
         }}
         w={{
@@ -148,7 +148,7 @@ export default function UploadPage() {
           lg: "75vw",
         }}
         style={{
-          borderRadius: "24px",
+          borderRadius: "var(--mantine-radius-md)",
           border: "1px solid rgba(255, 255, 255, 0.1)",
           background: "linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%)",
           backdropFilter: "blur(20px)",
@@ -221,7 +221,7 @@ export default function UploadPage() {
               w='100%'
               color={'rgba(0, 150, 136, 0.8)'}
               disabled={!currentPicture || uploading}
-              icon={!uploading ? 'upload' : 'uploading'}
+              icon={!uploading ? 'Upload' : 'Uploading'}
               onClick={async () => {
                 if (currentPicture) {
                   if (!uuid) {
@@ -308,9 +308,9 @@ export default function UploadPage() {
             justify="center"
             align="center"
             direction="column"
-            p="lg"
+            p="sm"
             style={{
-              borderRadius: "20px",
+              borderRadius: "var(--mantine-radius-md)",
               border: dragOver 
                 ? "2px dashed rgba(0, 150, 136, 0.8)" 
                 : previewUrl 
@@ -332,14 +332,14 @@ export default function UploadPage() {
             onDrop={!isMobile ? handleDrop : undefined}
           >
             {previewUrl ? (
-              <Flex direction="column" align="center" gap="md" w="100%" h="100%">
+              <Flex direction="column" align="center" gap="md" w="100%" h="100%" justify={"center"}>
                 <Image
                   src={previewUrl}
                   alt="Preview"
-                  width={300}
-                  height={300}
+                  width={200}
+                  height={200}
                   style={{
-                    borderRadius: "16px",
+                    borderRadius: "var(--mantine-radius-md)",
                     maxWidth: "100%",
                     maxHeight: "300px",
                     objectFit: "cover",
@@ -349,6 +349,7 @@ export default function UploadPage() {
                   unoptimized
                 />
                 <Text 
+                  visibleFrom="md"
                   size="sm" 
                   c="rgba(255, 255, 255, 0.7)"
                   ta="center"
