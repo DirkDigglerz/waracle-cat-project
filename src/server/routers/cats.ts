@@ -2,7 +2,7 @@ import { z } from "zod";
 import { publicProcedure, router } from "../trpc";
 
 const API_BASE_URL = "https://api.thecatapi.com/v1";
-const API_KEY = process.env.NEXT_PUBLIC_CAT_API_KEY || "";
+const API_KEY = process.env.CAT_API_KEY|| "";
 
 export const cats = router({
 

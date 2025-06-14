@@ -3,7 +3,7 @@ import { NextRequest } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 const API_BASE_URL = 'https://api.thecatapi.com/v1';
-const API_KEY = process.env.NEXT_PUBLIC_CAT_API_KEY || '';
+const API_KEY = process.env.CAT_API_KEY || '';
 
 export async function POST(req: NextRequest) {
 

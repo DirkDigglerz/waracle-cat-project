@@ -395,7 +395,7 @@ export default function CatCard(props: CatCardProps) {
             bottom={0}
             left={0}
             right={0}
-            p="lg"
+            // p="lg"
             align="center"
             justify="space-between"
             gap="md"

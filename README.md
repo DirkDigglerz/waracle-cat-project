@@ -111,8 +111,7 @@ pnpm
 Create a `.env.local` file and add your TheCatAPI key:
 
 ```env
-NEXT_PUBLIC_CAT_API_KEY=your_api_key_here
-```
+CAT_API_KEY=your-secret-key-here
 
 **4. Run the Dev Server**
 
