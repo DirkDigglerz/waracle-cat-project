@@ -56,6 +56,7 @@ export default function Button(props: ButtonProps) {
         if (props.onClick) props.onClick();
       }}
       style={{
+        cursor: props.disabled ? "not-allowed" : "pointer",
         padding: "1vh 5vh",
         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
         boxShadow: !props.disabled ? realHover ? `0 0.5vh 2vh ${alpha(mainColor, 0.4)}` : `0 0.25vh 1vh ${alpha(lightColor, 0.4)}` : "none",
