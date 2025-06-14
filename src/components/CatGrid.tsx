@@ -101,12 +101,11 @@ export default function CatGrid() {
   return (
     <>
       <style dangerouslySetInnerHTML={{ __html: globalStyles }} />
-      <Box
+      <Flex
         id="view-cats"
         style={{
           minHeight: "100vh",
           width: "100vw",
-          position: "relative",
         }}
       >
       <Flex
@@ -137,7 +136,7 @@ export default function CatGrid() {
                 rgba(255, 255, 255, 0.12) 100%)`,
               backdropFilter: "blur(40px) saturate(180%)",
               border: "1px solid rgba(255, 255, 255, 0.25)",
-              borderRadius: "40px",
+              borderRadius: "var(--mantine-radius-md)",
               overflow: "hidden",
               boxShadow: `
                 0 32px 64px -12px rgba(0, 0, 0, 0.3),
@@ -212,7 +211,7 @@ export default function CatGrid() {
                       rgba(255, 255, 255, 0.1) 100%)
                   `,
                   backdropFilter: "blur(20px)",
-                  borderRadius: "28px",
+                  borderRadius: "var(--mantine-radius-sm)",
                   border: "1px solid rgba(255, 255, 255, 0.3)",
                   boxShadow: `
                     0 8px 32px rgba(0, 0, 0, 0.12),
@@ -223,27 +222,9 @@ export default function CatGrid() {
                   overflow: "hidden",
                 }}
               >
-                {/* Header shimmer effect */}
-                <Box
-                  pos="absolute"
-                  top={0}
-                  left={0}
-                  right={0}
-                  bottom={0}
-                  style={{
-                    background: `
-                      linear-gradient(90deg, 
-                        transparent 0%, 
-                        rgba(255, 255, 255, 0.1) 50%, 
-                        transparent 100%)
-                    `,
-                    backgroundSize: '200% 100%',
-                    animation: `shimmer 3s ease-in-out infinite`,
-                    pointerEvents: "none",
-                  }}
-                />
+
                 
-                <Box
+                <Flex
                   ml="md"
                   style={{
                     background: "linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1))",
@@ -259,7 +240,7 @@ export default function CatGrid() {
                   }}
                 >
                   <Icons.Cat size={28} color="rgba(255, 255, 255, 0.95)" />
-                </Box>
+                </Flex>
                 
                 <Text
                   size="xl"
@@ -279,7 +260,7 @@ export default function CatGrid() {
                       style={{
                         background: "linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.15))",
                         padding: "4px 12px",
-                        borderRadius: "12px",
+                        borderRadius: "var(--mantine-radius-sm)",
                         marginLeft: "8px",
                         fontSize: "0.9em",
                         border: "1px solid rgba(255, 255, 255, 0.2)",
@@ -488,7 +469,7 @@ export default function CatGrid() {
                       `,
                       backdropFilter: "blur(20px)",
                       border: "2px solid rgba(255, 255, 255, 0.35)",
-                      borderRadius: "20px",
+                      borderRadius: "var(--mantine-radius-sm)",
                       color: "rgba(255, 255, 255, 0.95)",
                       fontWeight: 700,
                       padding: "16px 32px",
@@ -545,7 +526,7 @@ export default function CatGrid() {
           </Flex>
         </Container>
       </Flex>
-    </Box>
+    </Flex>
     </>
   );
 }

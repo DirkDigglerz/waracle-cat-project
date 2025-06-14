@@ -1,8 +1,7 @@
 "use client";
 
-import { useInViewport } from "@mantine/hooks";
-import { motion } from "framer-motion";
-import { ReactNode, useEffect, useState, useRef, useCallback } from "react";
+import { motion, useInView } from "framer-motion";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 type CloudScrollerProps = {
   children: ReactNode;
@@ -68,7 +67,8 @@ const ViewportReactiveCloud = ({
   floatDelay: number;
   floatDuration: number;
 }) => {
-  const { ref, inViewport } = useInViewport();
+  const ref= useRef(null);
+  const inViewport = useInView(ref, { margin: "0px 0px -50% 0px" });
 
   // Memoize x positions for stability — generate once per cloud instance
   const inViewportXRef = useRef(

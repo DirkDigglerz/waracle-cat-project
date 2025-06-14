@@ -1,21 +1,21 @@
 "use client";
 
-import { Box, Button, Container, Flex, Text } from "@mantine/core";
-import { Cat, Heart, Sparkles, Star, Upload } from "lucide-react";
+import { Box, Container, Flex, Text } from "@mantine/core";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Element, scroller } from "react-scroll";
+import Button from "./Button";
+import InfoPill from "./InfoPill";
 import SlideInSection from "./SlideInSection";
+
 
 export default function SplashBanner() {
   const router = useRouter(); 
-  
-
   return (
     <Element name="home-banner">
       <Box
         w="100vw"
-        h="100vh"
+        mih="100vh"
         style={{
           minHeight: "100dvh",
           position: "relative",
@@ -44,6 +44,7 @@ export default function SplashBanner() {
               justify="center"
               align="center"
               gap="xl"
+              // mt='lg'
               px="md"
             >
               {/* Logo Section */}
@@ -73,12 +74,13 @@ export default function SplashBanner() {
                           rgba(255, 255, 255, 0.1) 100%)`,
                         backdropFilter: "blur(20px)",
                         border: "1px solid rgba(255, 255, 255, 0.3)",
-                        borderRadius: "32px",
+                        borderRadius: "var(--mantine-radius-sm)",
                         boxShadow: `0 25px 50px -12px rgba(0, 0, 0, 0.25),
                                    inset 0 1px 0 rgba(255, 255, 255, 0.2)`,
                         transition: "all 0.3s ease",
                         cursor: "pointer",
                       }}
+                      onClick={() => router.push("/")}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.transform = "translateY(-5px) scale(1.05)";
                         e.currentTarget.style.boxShadow = "0 35px 60px -12px rgba(0, 0, 0, 0.3)";
@@ -128,6 +130,7 @@ export default function SplashBanner() {
                   {/* Hero text */}
                   <Flex direction="column" gap="md" align="center">
                     <Text
+                      visibleFrom="md"
                       size="3rem"
                       fw={800}
                       ta="center"
@@ -153,7 +156,7 @@ export default function SplashBanner() {
                       style={{
                         background: "rgba(255, 255, 255, 0.15)",
                         backdropFilter: "blur(10px)",
-                        borderRadius: "20px",
+                        borderRadius: "var(--mantine-radius-sm)",
                         border: "1px solid rgba(255, 255, 255, 0.2)",
                       }}
                     >
@@ -192,70 +195,16 @@ export default function SplashBanner() {
                     justify="center"
                   >
                     <Button
-                      size="xl"
-                      leftSection={<Upload size={20} />}
+                      icon="Upload"
+                      color="#ff6b6b"
                       onClick={() => router.push("/upload")}
-                      style={{
-                        background: `linear-gradient(135deg, 
-                          #ff6b6b 0%, 
-                          #ff8e8e 100%)`,
-                        border: "none",
-                        borderRadius: "16px",
-                        color: "white",
-                        fontWeight: 600,
-                        padding: "16px 32px",
-                        fontSize: "16px",
-                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                        boxShadow: "0 8px 25px rgba(255, 107, 107, 0.3)",
-                        minWidth: "180px",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = "translateY(-3px) scale(1.05)";
-                        e.currentTarget.style.boxShadow = "0 15px 35px rgba(255, 107, 107, 0.4)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = "translateY(0) scale(1)";
-                        e.currentTarget.style.boxShadow = "0 8px 25px rgba(255, 107, 107, 0.3)";
-                      }}
                     >
                       Upload Cat
                     </Button>
-
                     <Button
-                      size="xl"
-                      variant="outline"
-                      leftSection={<Cat size={20} />}
+                      icon="Cat"
                       onClick={() => {
                         scroller.scrollTo("view-cats", { smooth: true, duration: 500 });
-                      }}
-                      style={{
-                        background: `linear-gradient(135deg, 
-                          rgba(255, 255, 255, 0.15) 0%, 
-                          rgba(255, 255, 255, 0.05) 100%)`,
-                        backdropFilter: "blur(10px)",
-                        border: "1px solid rgba(255, 255, 255, 0.3)",
-                        borderRadius: "16px",
-                        color: "rgba(255, 255, 255, 0.9)",
-                        fontWeight: 600,
-                        padding: "16px 32px",
-                        fontSize: "16px",
-                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                        boxShadow: "0 8px 25px rgba(0, 0, 0, 0.1)",
-                        minWidth: "180px",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = "translateY(-3px) scale(1.05)";
-                        e.currentTarget.style.background = `linear-gradient(135deg, 
-                          rgba(255, 255, 255, 0.25) 0%, 
-                          rgba(255, 255, 255, 0.15) 100%)`;
-                        e.currentTarget.style.boxShadow = "0 15px 35px rgba(0, 0, 0, 0.2)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = "translateY(0) scale(1)";
-                        e.currentTarget.style.background = `linear-gradient(135deg, 
-                          rgba(255, 255, 255, 0.15) 0%, 
-                          rgba(255, 255, 255, 0.05) 100%)`;
-                        e.currentTarget.style.boxShadow = "0 8px 25px rgba(0, 0, 0, 0.1)";
                       }}
                     >
                       View Cats
@@ -264,41 +213,22 @@ export default function SplashBanner() {
 
                   {/* Stats or features */}
                   <Flex
-                    gap="xl"
+                    gap="sm"
                     justify="center"
                     wrap="wrap"
                     mt="md"
                   >
                     {[
-                      { icon: Heart, label: "Favorite System", color: "#ff6b6b" },
-                      { icon: Star, label: "Rating System", color: "#ffd93d" },
-                      { icon: Sparkles, label: "Beautiful UI", color: "#6bcf7f" },
+                      { icon: 'Heart', label: "Favorite System", color: "#ff6b6b" },
+                      { icon: 'Star', label: "Rating System", color: "#ffd93d" },
+                      { icon: 'Sparkles', label: "Beautiful UI", color: "#6bcf7f" },
                     ].map((feature, index) => (
-                      <Flex
-                        key={feature.label}
-                        align="center"
-                        gap="xs"
-                        px="md"
-                        py="xs"
-                        style={{
-                          background: "rgba(255, 255, 255, 0.1)",
-                          backdropFilter: "blur(5px)",
-                          borderRadius: "12px",
-                          border: "1px solid rgba(255, 255, 255, 0.15)",
-                          animation: `fadeInUp 0.6s ease-out ${0.8 + index * 0.2}s both`,
-                        }}
-                      >
-                        <feature.icon size={16} color={feature.color} />
-                        <Text
-                          size="sm"
-                          fw={500}
-                          style={{
-                            color: "rgba(255, 255, 255, 0.8)",
-                          }}
-                        >
-                          {feature.label}
-                        </Text>
-                      </Flex>
+                      <InfoPill 
+                        key={index}
+                        icon={feature.icon}
+                        iconColor={feature.color}
+                        label={feature.label}
+                      />
                     ))}
                   </Flex>
                 </Flex>
@@ -310,7 +240,8 @@ export default function SplashBanner() {
         {/* Scroll indicator */}
         <Box
           pos="absolute"
-          bottom="2rem"
+          bottom="2vh"
+          visibleFrom="md"
           left="50%"
           style={{
             transform: "translateX(-50%)",

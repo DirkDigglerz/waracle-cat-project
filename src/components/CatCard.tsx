@@ -273,12 +273,14 @@ export default function CatCard(props: CatCardProps) {
           cursor: "pointer",
           aspectRatio: "1 / 1",
           userSelect: "none",
+
         }}
       >
         <Flex
           w="100%"
           h="100%"
           pos="relative"
+          direction={"column"}
           justify="center"
           align="center"
           style={{
@@ -291,7 +293,7 @@ export default function CatCard(props: CatCardProps) {
             `,
             backdropFilter: "blur(25px) saturate(150%)",
             border: `2px solid rgba(255, 255, 255, ${isHovered ? 0.4 : 0.25})`,
-            borderRadius: 28,
+            borderRadius: "var(--mantine-radius-md)",
             overflow: "hidden",
             transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
             transform: isHovered 
@@ -337,13 +339,16 @@ export default function CatCard(props: CatCardProps) {
           <Box 
             w="100%" 
             h="100%" 
-            pos="relative" 
+              pos='absolute'
+              top={0}
+              left={0}
             style={{ 
-              borderRadius: 24, 
+              borderRadius: "var(--mantine-radius-sm)",
               overflow: "hidden",
             }}
           >
             <Image
+
               src={props.url}
               alt={`Cat ${props.id}`}
               onLoad={() => setLoaded(true)}
@@ -380,7 +385,7 @@ export default function CatCard(props: CatCardProps) {
                 inset={-2}
                 style={{
                   background: "linear-gradient(45deg, #ff6b6b, #ff8e8e, #ff6b6b)",
-                  borderRadius: 30,
+                  borderRadius: "var(--mantine-radius-sm)",
                   opacity: 0.3,
                   animation: favouriteAnimation ? 'glowPulse 0.6s ease-in-out' : 'none',
                   zIndex: -1,
@@ -391,11 +396,13 @@ export default function CatCard(props: CatCardProps) {
 
           {/* Enhanced Controls */}
           <Flex
-            pos="absolute"
-            bottom={0}
-            left={0}
-            right={0}
-            // p="lg"
+            w='100%'
+            mt='auto'
+            p="md"
+            pb={{
+              base: "xl",
+              md: "lg",
+            }}
             align="center"
             justify="space-between"
             gap="md"
@@ -419,8 +426,8 @@ export default function CatCard(props: CatCardProps) {
                 background: props.favouriteId 
                   ? "linear-gradient(135deg, rgba(255, 107, 107, 0.3), rgba(255, 107, 107, 0.1))"
                   : "linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05))",
-                borderRadius: "16px",
-                padding: "8px",
+                borderRadius: 'var(--mantine-radius-sm)',
+                padding: "var(--mantine-spacing-xs)",
                 border: `1px solid ${props.favouriteId ? 'rgba(255, 107, 107, 0.4)' : 'rgba(255, 255, 255, 0.2)'}`,
                 backdropFilter: "blur(10px)",
                 animation: favouriteAnimation ? 'heartBeat 0.6s ease-in-out' : 'none',
@@ -488,8 +495,8 @@ export default function CatCard(props: CatCardProps) {
                   background: currentVote === "up"
                     ? "linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(76, 175, 80, 0.1))"
                     : "linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05))",
-                  borderRadius: "14px",
-                  padding: "6px",
+                  borderRadius: 'var(--mantine-radius-sm)',
+                  padding: "var(--mantine-spacing-xs)",
                   border: `1px solid ${currentVote === "up" ? 'rgba(76, 175, 80, 0.4)' : 'rgba(255, 255, 255, 0.2)'}`,
                   backdropFilter: "blur(10px)",
                   transition: "all 0.3s ease",
@@ -510,7 +517,8 @@ export default function CatCard(props: CatCardProps) {
                     ? "linear-gradient(135deg, rgba(244, 67, 54, 0.3), rgba(244, 67, 54, 0.1))"
                     : "linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05))",
 
-                  padding: "6px",
+                  borderRadius: 'var(--mantine-radius-sm)',
+                  padding: "var(--mantine-spacing-xs)",
                   border: `1px solid ${currentVote === "down" ? 'rgba(244, 67, 54, 0.4)' : 'rgba(255, 255, 255, 0.2)'}`,
                   backdropFilter: "blur(10px)",
                   transition: "all 0.3s ease",

@@ -1,9 +1,10 @@
 "use client";
 
+import Button from "@/components/Button";
 import { useUserUUID } from "@/store/useUserID";
-import { Button, Flex, Text } from "@mantine/core";
+import { Flex, Text } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
-import { ChevronLeft, ImageIcon, Sparkles, Upload, UploadCloudIcon } from "lucide-react";
+import { ChevronLeft, ImageIcon, Sparkles, UploadCloudIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -217,29 +218,10 @@ export default function UploadPage() {
             />
 
             <Button
-              size="lg"
-              radius="xl"
-              fullWidth
-              variant="gradient"
-              gradient={{ from: "teal.6", to: "cyan.5", deg: 135 }}
+              w='100%'
+              color={'rgba(0, 150, 136, 0.8)'}
               disabled={!currentPicture || uploading}
-              leftSection={
-                !uploading ? (
-                  <Upload size={20} />
-                ) : (
-                  <UploadCloudIcon size={20} />
-                )
-              }
-              style={{
-                height: "50px",
-                fontSize: "16px",
-                fontWeight: 600,
-                boxShadow: !currentPicture || uploading 
-                  ? "none" 
-                  : "0 10px 30px rgba(0, 150, 136, 0.3)",
-                transform: !currentPicture || uploading ? "none" : "translateY(-2px)",
-                transition: "all 0.3s ease",
-              }}
+              icon={!uploading ? 'upload' : 'uploading'}
               onClick={async () => {
                 if (currentPicture) {
                   if (!uuid) {
@@ -291,10 +273,11 @@ export default function UploadPage() {
             </Button>
 
             <Button
+              
               size="md"
-              radius="xl"
-              variant="subtle"
-              color="gray"
+              radius="lg"
+              color="rgba(255, 255, 255, 0.8)"
+              c='rgba(44, 62, 80, 0.9)'
               leftSection={<ChevronLeft size={18} />}
               onClick={() => {
                 router.push("/");
@@ -459,24 +442,9 @@ function SelectPictureButton(props: SelectPictureButtonProps) {
   return (
     <>
       <Button
-        size="lg"
-        radius="xl"
-        fullWidth
-        variant="gradient"
-        gradient={{ from: "violet.6", to: "indigo.6", deg: 135 }}
-        disabled={props.disabled}
-        leftSection={<ImageIcon size={20} />}
-        style={{
-          height: "50px",
-          fontSize: "16px",
-          fontWeight: 600,
-          cursor: props.disabled ? "not-allowed" : "pointer",
-          boxShadow: props.disabled 
-            ? "none" 
-            : "0 10px 30px rgba(139, 69, 193, 0.3)",
-          transform: props.disabled ? "none" : "translateY(-2px)",
-          transition: "all 0.3s ease",
-        }}
+        w='100%'
+        icon="Image"
+        color="rgba(0, 200, 136, 0.8)"
         onClick={() => {
           if (!props.disabled) {
             inputRef.current?.click();
