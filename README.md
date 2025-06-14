@@ -31,17 +31,17 @@ Extras like animations, toast notifications, optimistic updates, and modular sta
 
 ## 🎯 Features
 
-✅ Upload cat images with validation
-✅ Toggle favourite/unfavourite with optimistic UI
-✅ Vote up/down with live score tracking
-✅ Fully responsive cat grid layout
-✅ Debounced mutation calls to prevent spam
-✅ Animated floating cloud background
-✅ Toast notifications for feedback
-✅ Zustand store for persisted user ID
-✅ tRPC mutations for API interaction
-✅ TanStack Query for caching & optimistic updates
-✅ Clean, modular component and hook structure
+* ✅ Upload cat images with validation
+* ✅ Toggle favourite/unfavourite with optimistic UI
+* ✅ Vote up/down with live score tracking
+* ✅ Fully responsive cat grid layout
+* ✅ Debounced mutation calls to prevent spam
+* ✅ Animated floating cloud background
+* ✅ Toast notifications for feedback
+* ✅ Zustand store for persisted user ID
+* ✅ tRPC mutations for API interaction
+* ✅ TanStack Query for caching & optimistic updates
+* ✅ Clean, modular component and hook structure
 
 ---
 
