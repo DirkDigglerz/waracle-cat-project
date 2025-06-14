@@ -16,23 +16,6 @@ import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import CatCard from "./CatCard";
 
-const styles = {
-  float: {
-    animation: 'float 6s ease-in-out infinite',
-  },
-  shimmer: {
-    animation: 'shimmer 8s ease-in-out infinite',
-  },
-  pulse: {
-    animation: 'pulse 2s ease-in-out infinite',
-  },
-  slideInUp: {
-    animation: 'slideInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
-  },
-  spin: {
-    animation: 'spin 1s linear infinite',
-  },
-};
 
 const globalStyles = `
 @keyframes float {
