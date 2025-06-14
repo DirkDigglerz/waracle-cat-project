@@ -294,8 +294,6 @@ export default function CatCard(props: CatCardProps) {
           left={0}
           right={0}
           p="sm"
-          pr="md"
-          pl="md"
           align="center"
           justify="space-between"
           gap="md"
@@ -303,6 +301,7 @@ export default function CatCard(props: CatCardProps) {
             transform: isHovered ? "translateY(0)" : "translateY(8px)",
             opacity: isHovered ? 1 : 0.9,
             transition: "all 0.3s ease",
+            
           }}
         >
           <CatControl
