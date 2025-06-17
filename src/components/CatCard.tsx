@@ -226,7 +226,7 @@ export default function CatCard(props: CatCardProps) {
       } else {
         favouriteCat.mutate({ imageId: id, userId });
       }
-    }, 500)
+    }, 250)
   ).current;
 
   const debouncedVote = useRef(
@@ -258,7 +258,7 @@ export default function CatCard(props: CatCardProps) {
   }, [currentVote, props.id, props.userId, debouncedVote, debouncedRemoveVote]);
     
   const favouritePending = favouriteCat.isPending || unfavouriteCat.isPending;
-  const votePending = voteCat.isPending || removeVote.isPending;
+ 
 
   return (
     <>
@@ -507,7 +507,7 @@ export default function CatCard(props: CatCardProps) {
                   color="rgba(255, 255, 255, 0.95)"
                   fill={currentVote === "up" ? "#4caf50" : "none"}
                   onClick={() => vote("up")}
-                  disabled={votePending}
+                  // disabled={votePending}
                 />
               </Box>
               
@@ -529,7 +529,7 @@ export default function CatCard(props: CatCardProps) {
                   color="rgba(255, 255, 255, 0.95)"
                   fill={currentVote === "down" ? "#f44336" : "none"}
                   onClick={() => vote("down")}
-                  disabled={votePending}
+                  // disabled={votePending}
                 />
               </Box>
             </Flex>

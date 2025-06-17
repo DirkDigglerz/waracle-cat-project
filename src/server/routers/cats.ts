@@ -2,10 +2,25 @@ import { z } from "zod";
 import { publicProcedure, router } from "../trpc";
 
 const API_BASE_URL = "https://api.thecatapi.com/v1";
-const API_KEY = process.env.CAT_API_KEY|| "";
+const API_KEY = process.env.CAT_API_KEY || "";
+
+type VoteResult =
+  | { success: true; id: string }
+  | { success: false; error: string };
+
+type RemoveVoteResult =
+  | { success: true; deletedVoteId: string }
+  | { success: false; error: string | "no_vote_found" };
+
+type FavouriteResult =
+  | { success: true; id: string }
+  | { success: false; error: string | "already_favourited" };
+
+type UnfavouriteResult =
+  | { success: true; id: number }
+  | { success: false; error: string };
 
 export const cats = router({
-
   voteCat: publicProcedure
     .input(
       z.object({
@@ -14,7 +29,7 @@ export const cats = router({
         value: z.enum(["up", "down"]),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input }): Promise<VoteResult> => {
       const voteValue = input.value === "up" ? 1 : 0;
 
       try {
@@ -33,15 +48,19 @@ export const cats = router({
 
         if (!response.ok) {
           const errorText = (await response.text()).trim();
-          console.error("Failed to vote on cat, status:", response.status, errorText);
-          return "failed_but_ignored";
+          console.error(
+            "Failed to vote on cat, status:",
+            response.status,
+            errorText
+          );
+          return { success: false, error: `HTTP ${response.status}: ${errorText}` };
         }
 
         const data = await response.json();
-        return data.id;
+        return { success: true, id: data.id };
       } catch (err) {
         console.error("Unexpected error voting on cat:", err);
-        return "failed_but_ignored";
+        return { success: false, error: "Unexpected error" };
       }
     }),
 
@@ -52,51 +71,60 @@ export const cats = router({
         userId: z.string().min(1, "User ID is required"),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input }): Promise<RemoveVoteResult> => {
       try {
-        // First, get the user's votes to find the vote ID for this image
-        const votesResponse = await fetch(`${API_BASE_URL}/votes?sub_id=${input.userId}`, {
-          method: "GET",
-          headers: {
-            "x-api-key": API_KEY,
-            "Content-Type": "application/json",
-          },
-        });
+        const votesResponse = await fetch(
+          `${API_BASE_URL}/votes?sub_id=${input.userId}`,
+          {
+            method: "GET",
+            headers: {
+              "x-api-key": API_KEY,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         if (!votesResponse.ok) {
           console.error("Failed to fetch votes to find vote ID");
-          return "failed_but_ignored";
+          return { success: false, error: "Failed to fetch votes" };
         }
 
         const votes = await votesResponse.json();
-        const voteToDelete = votes.find((vote: { image_id: string }) => vote.image_id === input.imageId);
+        const voteToDelete = votes.find(
+          (vote: { image_id: string }) => vote.image_id === input.imageId
+        );
 
         if (!voteToDelete) {
-          return "no_vote_found";
+          return { success: false, error: "no_vote_found" };
         }
 
-        // Delete the vote
-        const deleteResponse = await fetch(`${API_BASE_URL}/votes/${voteToDelete.id}`, {
-          method: "DELETE",
-          headers: {
-            "x-api-key": API_KEY,
-            "Content-Type": "application/json",
-          },
-        });
+        const deleteResponse = await fetch(
+          `${API_BASE_URL}/votes/${voteToDelete.id}`,
+          {
+            method: "DELETE",
+            headers: {
+              "x-api-key": API_KEY,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         if (!deleteResponse.ok) {
           const errorText = (await deleteResponse.text()).trim();
-          console.error("Failed to delete vote, status:", deleteResponse.status, errorText);
-          return "failed_but_ignored";
+          console.error(
+            "Failed to delete vote, status:",
+            deleteResponse.status,
+            errorText
+          );
+          return { success: false, error: `HTTP ${deleteResponse.status}: ${errorText}` };
         }
 
         return { success: true, deletedVoteId: voteToDelete.id };
       } catch (err) {
         console.error("Unexpected error removing vote:", err);
-        return "failed_but_ignored";
+        return { success: false, error: "Unexpected error" };
       }
     }),
-
 
   favouriteCat: publicProcedure
     .input(
@@ -105,7 +133,7 @@ export const cats = router({
         userId: z.string().min(1, "User ID is required"),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input }): Promise<FavouriteResult> => {
       try {
         const response = await fetch(`${API_BASE_URL}/favourites`, {
           method: "POST",
@@ -121,21 +149,24 @@ export const cats = router({
 
         if (!response.ok) {
           const errorText = (await response.text()).trim();
-          console.error("Failed to favourite cat, status:", response.status, errorText);
+          console.error(
+            "Failed to favourite cat, status:",
+            response.status,
+            errorText
+          );
 
           if (errorText.includes("DUPLICATE_FAVOURITE")) {
-            return "already_favourited";
+            return { success: false, error: "already_favourited" };
           }
 
-          return "failed_but_ignored";
+          return { success: false, error: `HTTP ${response.status}: ${errorText}` };
         }
 
         const data = await response.json();
-        // Return the favourite ID for cache updates
-        return data.id;
+        return { success: true, id: data.id };
       } catch (err) {
         console.error("Unexpected error favouriting cat:", err);
-        return "failed_but_ignored";
+        return { success: false, error: "Unexpected error" };
       }
     }),
 
@@ -145,44 +176,53 @@ export const cats = router({
         favouriteId: z.number().min(1, "Favourite ID is required"),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ input }): Promise<UnfavouriteResult> => {
       try {
-        const response = await fetch(`${API_BASE_URL}/favourites/${input.favouriteId}`, {
-          method: "DELETE",
-          headers: {
-            "x-api-key": API_KEY,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await fetch(
+          `${API_BASE_URL}/favourites/${input.favouriteId}`,
+          {
+            method: "DELETE",
+            headers: {
+              "x-api-key": API_KEY,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
         if (!response.ok) {
           const errorText = (await response.text()).trim();
-          console.error("Failed to unfavourite cat, status:", response.status, errorText);
-          return { success: false, message: "Failed to unfavourite cat" };
+          console.error(
+            "Failed to unfavourite cat, status:",
+            response.status,
+            errorText
+          );
+          return { success: false, error: "Failed to unfavourite cat" };
         }
 
-        // Return success with the deleted favourite ID for cache update
         return { success: true, id: input.favouriteId };
       } catch (err) {
         console.error("Unexpected error unfavouriting cat:", err);
-        return { success: false, message: "Unexpected error" };
+        return { success: false, error: "Unexpected error" };
       }
     }),
 
   userFavourites: publicProcedure
-    .input( 
+    .input(
       z.object({
         userId: z.string().min(1, "ID is required"),
       })
     )
     .query(async ({ input }) => {
-      const response = await fetch(`${API_BASE_URL}/favourites?sub_id=${input.userId}`, {
-        method: "GET",
-        headers: {
-          "x-api-key": API_KEY,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/favourites?sub_id=${input.userId}`,
+        {
+          method: "GET",
+          headers: {
+            "x-api-key": API_KEY,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch favourites");
@@ -194,7 +234,6 @@ export const cats = router({
         imageId: fav.image_id,
       }));
     }),
-    
 
   userVotes: publicProcedure
     .input(
@@ -203,24 +242,29 @@ export const cats = router({
       })
     )
     .query(async ({ input }) => {
-      const response = await fetch(`${API_BASE_URL}/votes?sub_id=${input.userId}`, {
-        method: "GET",
-        headers: {
-          "x-api-key": API_KEY,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/votes?sub_id=${input.userId}`,
+        {
+          method: "GET",
+          headers: {
+            "x-api-key": API_KEY,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch votes");
       }
 
       const votes = await response.json();
-      return votes.map((vote: { id: number; image_id: string; value: number }) => ({
-        id: vote.id,
-        imageId: vote.image_id,
-        value: vote.value === 1 ? "up" : "down",
-      }));
+      return votes.map(
+        (vote: { id: number; image_id: string; value: number }) => ({
+          id: vote.id.toString(),
+          imageId: vote.image_id,
+          value: vote.value === 1 ? "up" : "down",
+        })
+      );
     }),
 
   getFavourites: publicProcedure
@@ -230,13 +274,16 @@ export const cats = router({
       })
     )
     .query(async ({ input }) => {
-      const response = await fetch(`${API_BASE_URL}/favourites?sub_id=${input.userId}`, {
-        method: "GET",
-        headers: {
-          "x-api-key": API_KEY,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/favourites?sub_id=${input.userId}`,
+        {
+          method: "GET",
+          headers: {
+            "x-api-key": API_KEY,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to fetch favourites");
