@@ -2,21 +2,19 @@
 
 import { motion, useInView } from "framer-motion";
 import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import debounce from "lodash.debounce";
 
 type CloudScrollerProps = {
   children: ReactNode;
 };
 
-// Enhanced Cloud SVG
-const Cloud = ({
-  opacity = 0.6,
-  scale = 1.5,
-  rotation = 0,
-}: {
+type CloudProps = {
   opacity?: number;
   scale?: number;
   rotation?: number;
-}) => (
+};
+
+const Cloud = ({ opacity = 0.6, scale = 1.5, rotation = 0 }: CloudProps) => (
   <svg
     width={200 * scale}
     height={120 * scale}
@@ -36,77 +34,56 @@ const Cloud = ({
   </svg>
 );
 
-function randomBetween(min: number, max: number) {
-  return Math.random() * (max - min) + min;
-}
+const random = (min: number, max: number) => Math.random() * (max - min) + min;
 
-// Debounce util
-function debounce(func: () => void, wait: number) {
-  let timeout: ReturnType<typeof setTimeout>;
-  return () => {
-    clearTimeout(timeout);
-    timeout = setTimeout(func, wait);
-  };
-}
-
-// Individual cloud with memoized positions and Mantine viewport detection
-const ViewportReactiveCloud = ({
-  absoluteY,
-  side,
-  opacity,
-  scale,
-  rotation,
-  floatDelay,
-  floatDuration,
-}: {
-  absoluteY: number;
+type CloudInstance = {
+  id: string;
+  y: number;
   side: "left" | "right";
   opacity: number;
   scale: number;
   rotation: number;
   floatDelay: number;
   floatDuration: number;
-}) => {
-  const ref= useRef(null);
-  const inViewport = useInView(ref, { margin: "0px 0px -50% 0px" });
+};
 
-  // Memoize x positions for stability — generate once per cloud instance
-  const inViewportXRef = useRef(
-    side === "left" ? randomBetween(-60, -20) : randomBetween(10, 50)
-  );
-  const outViewportXRef = useRef(
-    side === "left" ? randomBetween(-10, -5) : randomBetween(5, 10)
-  );
+const FloatingCloud = ({
+  y,
+  side,
+  opacity,
+  scale,
+  rotation,
+  floatDelay,
+  floatDuration,
+}: CloudInstance) => {
+  const ref = useRef(null);
+  const inView = useInView(ref, { margin: "0px 0px -50% 0px" });
 
-  // Use stable positions
-  const xTarget = inViewport
-    ? `${inViewportXRef.current}vw`
-    : `${outViewportXRef.current}vw`;
+  const xIn = useRef(side === "left" ? random(-60, -20) : random(10, 50));
+  const xOut = useRef(side === "left" ? random(-10, -5) : random(5, 10));
 
-  // Smooth opacity transition
-  const targetOpacity = inViewport ? opacity : opacity * 0.4;
-
-  // Scale effect when in viewport
-  const targetScale = inViewport ? scale * 1.2 : scale * 0.9;
+  const x = inView ? `${xIn.current}vw` : `${xOut.current}vw`;
+  const displayOpacity = inView ? opacity : opacity * 0.4;
+  const displayScale = inView ? scale * 1.2 : scale * 0.9;
 
   return (
     <motion.div
       ref={ref}
       style={{
         position: "absolute",
-        top: absoluteY,
+        top: y,
         left: "50%",
         zIndex: 10,
         pointerEvents: "none",
-        willChange: "transform",
+        padding: 20,
         borderRadius: "50%",
-        padding: "20px",
+        willChange: "transform",
       }}
       animate={{
-        x: xTarget,
-        opacity: targetOpacity,
-        scale: targetScale,
-        y: [0, 30, 0], // Floating animation
+        x,
+        opacity: displayOpacity,
+        scale: displayScale,
+        y: [0, 30, 0],
       }}
       transition={{
         x: { duration: 0.8, ease: "easeOut" },
@@ -120,67 +97,48 @@ const ViewportReactiveCloud = ({
         },
       }}
     >
-      <Cloud opacity={1} scale={1} rotation={rotation} />
+      <Cloud scale={1} opacity={1} rotation={rotation} />
     </motion.div>
   );
 };
 
-type CloudConfig = {
-  id: string;
-  absoluteY: number;
-  side: "left" | "right";
-  opacity: number;
-  scale: number;
-  rotation: number;
-  floatDelay: number;
-  floatDuration: number;
-};
-
 export default function CloudScroller({ children }: CloudScrollerProps) {
-  const [clouds, setClouds] = useState<CloudConfig[]>([]);
+  const [clouds, setClouds] = useState<CloudInstance[]>([]);
 
   const generateClouds = useCallback(() => {
-    // Generate clouds based on current document height
-    const contentHeight = Math.max(
+    const height = Math.max(
       document.body.scrollHeight,
       document.documentElement.scrollHeight,
       6000
     );
 
-    const cloudConfigs: CloudConfig[] = [];
-    const cloudSpacing = 150;
-    const numClouds = Math.ceil(contentHeight / cloudSpacing) * 1.5;
+    const spacing = 150;
+    const total = Math.ceil(height / spacing) * 1.5;
 
-    for (let i = 0; i < numClouds; i++) {
-      const side = Math.floor(i / 2) % 2 === 0 ? "left" : "right";
+    const newClouds: CloudInstance[] = [];
 
-      cloudConfigs.push({
+    for (let i = 0; i < total; i++) {
+      newClouds.push({
         id: `cloud-${i}`,
-        absoluteY: i * cloudSpacing + (Math.random() * 100 - 50),
-        side,
-        opacity: Math.random() * 0.3 + 0.5,
-        scale: Math.random() * 0.3 + 1.0,
-        rotation: Math.random() * 25 - 12.5,
-        floatDelay: Math.random() * 4,
-        floatDuration: 6 + Math.random() * 4,
+        y: i * spacing + random(-50, 50),
+        side: i % 4 < 2 ? "left" : "right",
+        opacity: random(0.5, 0.8),
+        scale: random(1.0, 1.3),
+        rotation: random(-12.5, 12.5),
+        floatDelay: random(0, 4),
+        floatDuration: random(6, 10),
       });
     }
 
-    setClouds(cloudConfigs);
+    setClouds(newClouds);
   }, []);
 
   useEffect(() => {
     generateClouds();
 
-    // Debounced resize handler
-    const debouncedHandleResize = debounce(() => {
-      generateClouds();
-    }, 300);
-
-    window.addEventListener("resize", debouncedHandleResize);
-    return () => {
-      window.removeEventListener("resize", debouncedHandleResize);
-    };
+    const onResize = debounce(generateClouds, 300);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
   }, [generateClouds]);
 
   return (
@@ -191,12 +149,11 @@ export default function CloudScroller({ children }: CloudScrollerProps) {
         backgroundImage: "url('/blurry-gradient-haikei.svg')",
         backgroundSize: "cover",
         backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
         minHeight: "100vh",
         width: "100%",
       }}
     >
-      {/* Clouds container: absolutely positioned and behind content */}
+      {/* Cloud Layer */}
       <div
         style={{
           position: "absolute",
@@ -209,28 +166,12 @@ export default function CloudScroller({ children }: CloudScrollerProps) {
         }}
       >
         {clouds.map((cloud) => (
-          <ViewportReactiveCloud
-            key={cloud.id}
-            absoluteY={cloud.absoluteY}
-            side={cloud.side}
-            opacity={cloud.opacity}
-            scale={cloud.scale}
-            rotation={cloud.rotation}
-            floatDelay={cloud.floatDelay}
-            floatDuration={cloud.floatDuration}
-          />
+          <FloatingCloud key={cloud.id} {...cloud} />
         ))}
       </div>
 
-      {/* Content container: relative with higher z-index */}
-      <div
-        style={{
-          position: "relative",
-          zIndex: 10,
-        }}
-      >
-        {children}
-      </div>
+      {/* Content */}
+      <div style={{ position: "relative", zIndex: 10 }}>{children}</div>
     </div>
   );
 }

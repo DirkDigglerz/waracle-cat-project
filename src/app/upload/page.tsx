@@ -10,22 +10,35 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { trpc } from "../client/trpc";
 
-async function uploadImage(file: File, subId: string) {
+import { UploadResult } from "../api/upload/route";
+
+
+export async function uploadImage(file: File, subId: string): Promise<UploadResult> {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('sub_id', subId);
 
-  const res = await fetch('/api/upload', {
-    method: 'POST',
-    body: formData,
-  });
-  
-  if (!res.ok) throw new Error('Upload failed');
+  try {
+    const res = await fetch('/api/upload', {
+      method: 'POST',
+      body: formData,
+    });
 
-  const data = await res.json();
+    const data = (await res.json()) as UploadResult;
 
-  return data;
+    if (!data.success) {
+      return data;
+    }
+
+    return data;
+  } catch (error: any) {
+    const errMessage = error?.message ?? 'Unknown error';
+
+
+    return { success: false, error: errMessage };
+  }
 }
+
 
 export default function UploadPage() {
   const router = useRouter();
@@ -242,7 +255,7 @@ export default function UploadPage() {
                   const url = await uploadImage(currentPicture, uuid);
   
                   setUploading(false);
-                  if (!url) {
+                  if (!url.success) {
                     notifications.show({
                       title: "Upload Failed",
                       message: "There was an error uploading your image. Please try again.",

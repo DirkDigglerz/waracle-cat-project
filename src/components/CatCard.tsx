@@ -5,7 +5,8 @@ import { CatProps } from "@/types";
 import { Box, Flex, Image, Text } from "@mantine/core";
 import { useCallback, useRef, useState, useEffect } from "react";
 import { CatControl } from "./CatControl";
-import debounce from "lodash.debounce";
+import throttle from "lodash.throttle";
+import { useThrottledCallback } from "@mantine/hooks";
 
 const globalStyles = `
 @keyframes shimmer {
@@ -218,8 +219,8 @@ export default function CatCard(props: CatCardProps) {
     },
   });
 
-  const debouncedToggle = useRef(
-    debounce((favouriteId, id, userId) => {
+  const throttledToggle = useRef(
+    useThrottledCallback((favouriteId, id, userId) => {
       if (favouriteId) {
         if (!favouriteId) return;
         unfavouriteCat.mutate({ favouriteId: Number(favouriteId) });
@@ -229,8 +230,8 @@ export default function CatCard(props: CatCardProps) {
     }, 250)
   ).current;
 
-  const debouncedVote = useRef(
-    debounce((voteType: "up" | "down", imageId: string, userId: string) => {
+  const throttledVote = useRef(
+    useThrottledCallback((voteType: "up" | "down", imageId: string, userId: string) => {
       voteCat.mutate({ 
         imageId, 
         userId, 
@@ -239,23 +240,23 @@ export default function CatCard(props: CatCardProps) {
     }, 300)
   ).current;
 
-  const debouncedRemoveVote = useRef(
-    debounce((imageId: string, userId: string) => {
+  const throttledRemoveVote = useRef(
+    useThrottledCallback((imageId: string, userId: string) => {
       removeVote.mutate({ imageId, userId });
     }, 300)
   ).current;
 
   const toggleFavourite = useCallback(() => {
-    debouncedToggle(props.favouriteId, props.id, props.userId);
+    throttledToggle(props.favouriteId, props.id, props.userId);
   }, [props.favouriteId, props.id, props.userId]);
 
   const vote = useCallback((voteType: "up" | "down") => {
     if (currentVote === voteType) {
-      debouncedRemoveVote(props.id, props.userId);
+      throttledRemoveVote(props.id, props.userId);
     } else {
-      debouncedVote(voteType, props.id, props.userId);
+      throttledVote(voteType, props.id, props.userId);
     }
-  }, [currentVote, props.id, props.userId, debouncedVote, debouncedRemoveVote]);
+  }, [currentVote, props.id, props.userId, throttledVote, throttledRemoveVote]);
     
   const favouritePending = favouriteCat.isPending || unfavouriteCat.isPending;
  
