@@ -1,37 +1,50 @@
+import { UploadResult } from '@/types';
 import { NextRequest } from 'next/server';
+import { z } from 'zod';
 
 export const dynamic = 'force-dynamic';
 
 const API_BASE_URL = 'https://api.thecatapi.com/v1';
 const API_KEY = process.env.CAT_API_KEY || '';
 
-export type UploadResult =
-  | { success: true; id: string; url: string }
-  | { success: false; error: string };
+// Zod schemas
+const FormDataSchema = z.object({
+  file: z.instanceof(File),
+  sub_id: z.string().min(1, 'sub_id cannot be empty'),
+});
+
+const CatApiErrorSchema = z.object({
+  message: z.string().optional(),
+  error: z.string().optional(),
+});
+
+const CatApiSuccessSchema = z.object({
+  id: z.string(),
+  url: z.string().optional(),
+});
 
 export async function POST(req: NextRequest): Promise<Response> {
   try {
     const formData = await req.formData();
-    const file = formData.get('file');
-    const subId = formData.get('sub_id');
+    
+    // Parse and validate form data
+    const formDataResult = FormDataSchema.safeParse({
+      file: formData.get('file'),
+      sub_id: formData.get('sub_id'),
+    });
 
-    if (
-      !file ||
-      typeof (file as File).arrayBuffer !== 'function' ||
-      !('name' in (file as File))
-    ) {
-      return respondError('No file uploaded or invalid file', 400);
+    if (!formDataResult.success) {
+      const errorMessage = formDataResult.error.issues
+        .map(issue => `${issue.path.join('.')}: ${issue.message}`)
+        .join(', ');
+      return respondError(`Invalid form data: ${errorMessage}`, 400);
     }
 
-    if (!subId || typeof subId !== 'string') {
-      return respondError('No sub_id provided', 400);
-    }
-
-    const fileAsFile = file as File;
+    const { file, sub_id } = formDataResult.data;
 
     const outgoingFormData = new FormData();
-    outgoingFormData.append('file', fileAsFile, fileAsFile.name);
-    outgoingFormData.append('sub_id', subId);
+    outgoingFormData.append('file', file, file.name);
+    outgoingFormData.append('sub_id', sub_id);
 
     const response = await fetch(`${API_BASE_URL}/images/upload`, {
       method: 'POST',
@@ -42,16 +55,20 @@ export async function POST(req: NextRequest): Promise<Response> {
     });
 
     if (!response.ok) {
-      const errorData = await safeJson(response);
-      const message = errorData?.message ?? `Upload failed with status ${response.status}`;
+      const errorData = await safeJson(response, CatApiErrorSchema);
+      const message = errorData?.message || errorData?.error || `Upload failed with status ${response.status}`;
       return respondError(message, 500);
     }
 
-    const data = await response.json();
+    const data = await safeJson(response, CatApiSuccessSchema);
+    if (!data) {
+      return respondError('Invalid response format from Cat API', 500);
+    }
+
     const result: UploadResult = {
       success: true,
       id: data.id,
-      url: data.url ?? '', // you may adjust this if your API returns `image.url`
+      url: data.url ?? '',
     };
 
     return new Response(JSON.stringify(result), {
@@ -76,9 +93,14 @@ function respondError(error: string, status = 500): Response {
   });
 }
 
-async function safeJson(response: Response): Promise<any | null> {
+async function safeJson<T>(
+  response: Response, 
+  schema: z.ZodSchema<T>
+): Promise<T | null> {
   try {
-    return await response.json();
+    const json = await response.json();
+    const result = schema.safeParse(json);
+    return result.success ? result.data : null;
   } catch {
     return null;
   }

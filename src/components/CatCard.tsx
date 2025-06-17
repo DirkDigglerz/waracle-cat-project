@@ -1,12 +1,10 @@
 "use client";
 
-import { trpc } from "@/app/client/trpc";
-import { CatProps } from "@/types";
+import { CatCardProps, VoteProps } from "@/types";
+import { useCatActions, useUserVotes } from "@/utils/api";
 import { Box, Flex, Image, Text } from "@mantine/core";
-import { useCallback, useRef, useState, useEffect } from "react";
+import { useState } from "react";
 import { CatControl } from "./CatControl";
-import throttle from "lodash.throttle";
-import { useThrottledCallback } from "@mantine/hooks";
 
 const globalStyles = `
 @keyframes shimmer {
@@ -41,225 +39,28 @@ const globalStyles = `
 }
 `;
 
-export interface CatCardProps extends CatProps {
-  userId: string;
-  voteValue?: "up" | "down" | null;
-  favouriteId?: string | null;
-}
-
 export default function CatCard(props: CatCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [loaded, setLoaded] = useState(false);
-  const [scoreAnimation, setScoreAnimation] = useState(false);
-  const [favouriteAnimation, setFavouriteAnimation] = useState(false);
-
-  // Use tRPC utils for cleaner cache manipulation
-  const utils = trpc.useUtils();
-
+  const [scoreAnimation] = useState(false);
+  const [favouriteAnimation] = useState(false);
   // Get current vote from cache
-  const userVotesQuery = trpc.cats.userVotes.useQuery({ userId: props.userId });
-  interface Vote {
-    id: string;
-    imageId: string;
-    value: "up" | "down";
-    userId: string;
+  const userVotesQuery = useUserVotes(props.userId);
+
+  const currentVote = userVotesQuery.data?.find((vote: VoteProps) => vote.imageId === props.id)?.value || null; 
+  interface UserVotesQuery {
+    data?: VoteProps[];
   }
 
-  const currentVote: "up" | "down" | null = (userVotesQuery.data as Vote[] | undefined)?.find((vote: Vote) => vote.imageId === props.id)?.value || props.voteValue || null;
-
+  const score: number = (userVotesQuery as UserVotesQuery).data?.reduce((acc: number, vote: VoteProps) => {
+    if (vote.imageId === props.id) {
+      return acc + (String(vote.value) === "up" ? 1 : String(vote.value) === "down" ? -1 : 0);
+    }
+    return acc;
+  }, 0) || 0;
   // Calculate score based on current vote
-  const score = currentVote === "up" ? 1 : currentVote === "down" ? -1 : 0;
-
-  // Trigger animations when score or favourite changes
-  useEffect(() => {
-    setScoreAnimation(true);
-    const timer = setTimeout(() => setScoreAnimation(false), 300);
-    return () => clearTimeout(timer);
-  }, [score]);
-
-  useEffect(() => {
-    if (props.favouriteId) {
-      setFavouriteAnimation(true);
-      const timer = setTimeout(() => setFavouriteAnimation(false), 600);
-      return () => clearTimeout(timer);
-    }
-  }, [props.favouriteId]);
-
-  const favouriteCat = trpc.cats.favouriteCat.useMutation({
-    onMutate: async () => {
-      await utils.cats.userFavourites.cancel({ userId: props.userId });
-      const previousFavourites = utils.cats.userFavourites.getData({ userId: props.userId }) || [];
-      const newFav = { 
-        id: 'temp-fav-id-' + props.id, 
-        imageId: props.id 
-      };
-      
-      utils.cats.userFavourites.setData(
-        { userId: props.userId }, 
-        [...previousFavourites, newFav]
-      );
-
-      return { previousFavourites };
-    },
-    onError: (error, variables, context) => {
-      console.error("Failed to favourite cat:", error);
-      if (context?.previousFavourites) {
-        utils.cats.userFavourites.setData(
-          { userId: props.userId }, 
-          context.previousFavourites
-        );
-      }
-    },
-    onSettled: () => {
-      utils.cats.userFavourites.invalidate({ userId: props.userId });
-    },
-  });
-
-  const unfavouriteCat = trpc.cats.unfavouriteCat.useMutation({
-    onMutate: async () => {
-      await utils.cats.userFavourites.cancel({ userId: props.userId })
-      interface Favourite {
-        id: string;
-        imageId: string;
-      }
-      const previousFavourites: Favourite[] = utils.cats.userFavourites.getData({ userId: props.userId }) || [];
-      const updatedFavourites: Favourite[] = previousFavourites.filter((fav: Favourite) => fav.id !== props.favouriteId);
-    
-      utils.cats.userFavourites.setData(
-        { userId: props.userId }, 
-        updatedFavourites
-      );
-
-      return { previousFavourites };
-    },
-    onError: (error, variables, context) => {
-      console.error("Failed to unfavourite cat:", error);
-      if (context?.previousFavourites) {
-        utils.cats.userFavourites.setData(
-          { userId: props.userId }, 
-          context.previousFavourites
-        );
-      }
-    },
-    onSettled: () => {
-      utils.cats.userFavourites.invalidate({ userId: props.userId });
-    },
-  });
-
-  // Vote mutations
-  const voteCat = trpc.cats.voteCat.useMutation({
-    onMutate: async (variables) => {
-      await utils.cats.userVotes.cancel({ userId: props.userId });
-      const previousVotes = utils.cats.userVotes.getData({ userId: props.userId }) || [];
-
-      interface Vote {
-        id: string;
-        imageId: string;
-        value: "up" | "down";
-        userId: string;
-      }
-      const existingVoteIndex: number = previousVotes.findIndex((vote: Vote) => vote.imageId === props.id);
-      let updatedVotes;
-      
-      if (existingVoteIndex >= 0) {
-        updatedVotes = [...previousVotes];
-        updatedVotes[existingVoteIndex] = {
-          ...updatedVotes[existingVoteIndex],
-          value: variables.value
-        };
-      } else {
-        updatedVotes = [
-          ...previousVotes,
-          {
-            id: 'temp-vote-id-' + props.id,
-            imageId: props.id,
-            value: variables.value,
-            userId: props.userId
-          }
-        ];
-      }
-
-      utils.cats.userVotes.setData({ userId: props.userId }, updatedVotes);
-      return { previousVotes };
-    },
-    onError: (error, variables, context) => {
-      console.error("Failed to vote on cat:", error);
-      if (context?.previousVotes) {
-        utils.cats.userVotes.setData({ userId: props.userId }, context.previousVotes);
-      }
-    },
-    onSettled: () => {
-      utils.cats.userVotes.invalidate({ userId: props.userId });
-    },
-  });
-
-  const removeVote = trpc.cats.removeVote.useMutation({
-    onMutate: async () => {
-      await utils.cats.userVotes.cancel({ userId: props.userId });
-      const previousVotes = utils.cats.userVotes.getData({ userId: props.userId }) || [];
-      interface Vote {
-        id: string;
-        imageId: string;
-        value: "up" | "down";
-        userId: string;
-      }
-      const updatedVotes: Vote[] = previousVotes.filter((vote: Vote) => vote.imageId !== props.id);
-
-      utils.cats.userVotes.setData({ userId: props.userId }, updatedVotes);
-      return { previousVotes };
-    },
-    onError: (error, variables, context) => {
-      console.error("Failed to remove vote:", error);
-      if (context?.previousVotes) {
-        utils.cats.userVotes.setData({ userId: props.userId }, context.previousVotes);
-      }
-    },
-    onSettled: () => {
-      utils.cats.userVotes.invalidate({ userId: props.userId });
-    },
-  });
-
-  const throttledToggle = useRef(
-    useThrottledCallback((favouriteId, id, userId) => {
-      if (favouriteId) {
-        if (!favouriteId) return;
-        unfavouriteCat.mutate({ favouriteId: Number(favouriteId) });
-      } else {
-        favouriteCat.mutate({ imageId: id, userId });
-      }
-    }, 250)
-  ).current;
-
-  const throttledVote = useRef(
-    useThrottledCallback((voteType: "up" | "down", imageId: string, userId: string) => {
-      voteCat.mutate({ 
-        imageId, 
-        userId, 
-        value: voteType 
-      });
-    }, 300)
-  ).current;
-
-  const throttledRemoveVote = useRef(
-    useThrottledCallback((imageId: string, userId: string) => {
-      removeVote.mutate({ imageId, userId });
-    }, 300)
-  ).current;
-
-  const toggleFavourite = useCallback(() => {
-    throttledToggle(props.favouriteId, props.id, props.userId);
-  }, [props.favouriteId, props.id, props.userId]);
-
-  const vote = useCallback((voteType: "up" | "down") => {
-    if (currentVote === voteType) {
-      throttledRemoveVote(props.id, props.userId);
-    } else {
-      throttledVote(voteType, props.id, props.userId);
-    }
-  }, [currentVote, props.id, props.userId, throttledVote, throttledRemoveVote]);
-    
-  const favouritePending = favouriteCat.isPending || unfavouriteCat.isPending;
- 
+  // const score = currentVote === "up" ? 1 : currentVote === "down" ? -1 : 0;
+  const { toggleFavourite, handleVote } = useCatActions(props.userId, props.id);
 
   return (
     <>
@@ -340,9 +141,9 @@ export default function CatCard(props: CatCardProps) {
           <Box 
             w="100%" 
             h="100%" 
-              pos='absolute'
-              top={0}
-              left={0}
+            pos='absolute'
+            top={0}
+            left={0}
             style={{ 
               borderRadius: "var(--mantine-radius-sm)",
               overflow: "hidden",
@@ -439,8 +240,10 @@ export default function CatCard(props: CatCardProps) {
                 name="Heart"
                 color="rgba(255, 255, 255, 0.95)"
                 fill={props.favouriteId ? "#ff6b6b" : "none"}
-                onClick={toggleFavourite}
-                disabled={favouritePending}
+                onClick={() => {
+                  toggleFavourite(props.favouriteId);
+                }}
+                // disabled={isPending.favourite}
               />
             </Box>
 
@@ -507,7 +310,7 @@ export default function CatCard(props: CatCardProps) {
                   name="ThumbsUp"
                   color="rgba(255, 255, 255, 0.95)"
                   fill={currentVote === "up" ? "#4caf50" : "none"}
-                  onClick={() => vote("up")}
+                  onClick={() => handleVote("up", currentVote)}
                   // disabled={votePending}
                 />
               </Box>
@@ -529,7 +332,7 @@ export default function CatCard(props: CatCardProps) {
                   name="ThumbsDown"
                   color="rgba(255, 255, 255, 0.95)"
                   fill={currentVote === "down" ? "#f44336" : "none"}
-                  onClick={() => vote("down")}
+                  onClick={() => handleVote("down", currentVote)}
                   // disabled={votePending}
                 />
               </Box>

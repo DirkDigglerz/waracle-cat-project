@@ -1,24 +1,9 @@
 import { z } from "zod";
 import { publicProcedure, router } from "../trpc";
+import { FavouriteResult, RemoveVoteResult, UnfavouriteResult, VoteResult } from "@/types";
 
 const API_BASE_URL = "https://api.thecatapi.com/v1";
 const API_KEY = process.env.CAT_API_KEY || "";
-
-type VoteResult =
-  | { success: true; id: string }
-  | { success: false; error: string };
-
-type RemoveVoteResult =
-  | { success: true; deletedVoteId: string }
-  | { success: false; error: string | "no_vote_found" };
-
-type FavouriteResult =
-  | { success: true; id: string }
-  | { success: false; error: string | "already_favourited" };
-
-type UnfavouriteResult =
-  | { success: true; id: number }
-  | { success: false; error: string };
 
 export const cats = router({
   voteCat: publicProcedure

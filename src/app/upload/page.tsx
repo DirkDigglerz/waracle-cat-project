@@ -10,8 +10,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { trpc } from "../client/trpc";
 
-import { UploadResult } from "../api/upload/route";
-
+import { UploadResult } from "@/types";
 
 export async function uploadImage(file: File, subId: string): Promise<UploadResult> {
   const formData = new FormData();
@@ -31,6 +30,7 @@ export async function uploadImage(file: File, subId: string): Promise<UploadResu
     }
 
     return data;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     const errMessage = error?.message ?? 'Unknown error';
 
